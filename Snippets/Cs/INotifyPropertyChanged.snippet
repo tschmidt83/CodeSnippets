@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets
+    xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+    <CodeSnippet Format="1.0.0">
+        <Header>
+            <Title>INotifyPropertyChanged Member Implementation</Title>
+			<Author>Torben Schmidt</Author>
+			<Description>Adds an implementation of INotifyPropertyChanged to the class.</Description>
+        </Header>
+        <Snippet>
+            <Code Language="csharp">
+                <![CDATA[#region INotifyPropertyChanged members
+				public event PropertyChangedEventHandler PropertyChanged;
+
+				protected virtual void RaisePropertyChanged(string prop)
+				{
+					if (PropertyChanged != null)
+					{
+						PropertyChanged(this, new PropertyChangedEventArgs(prop));
+					}
+				}
+				#endregion]]>
+            </Code>
+            
+<Imports>
+    <Import>
+        <Namespace>System.ComponentModel</Namespace>
+    </Import>
+</Imports>
+            
+        </Snippet>
+    </CodeSnippet>
+</CodeSnippets>

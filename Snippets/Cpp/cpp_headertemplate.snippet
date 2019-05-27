@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>C/Cpp Header file template</Title>
+			<Shortcut>htemplate</Shortcut>
+			<Description>Template with commented sections for a c/cpp header file</Description>
+			<Author>Torben Schmidt</Author>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>hdef</ID>
+					<ToolTip>Header identification string</ToolTip>
+					<Default>__HEADER_H</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="cpp"><![CDATA[#ifndef $hdef$
+#define $hdef$
+
+/*********************** Includes section ******************/
+
+/*********************** Macros ****************************/
+
+/*********************** Definitions ***********************/
+
+/*********************** Exported variables ****************/
+
+/*********************** Exported prototypes ***************/
+
+#endif]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>

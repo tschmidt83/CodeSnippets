@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>pcommand</Title>
+			<Shortcut>pcommand</Shortcut>
+			<Description>ICommand implementation</Description>
+			<Author>Torben Schmidt</Author>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>propertyName</ID>
+					<ToolTip>Property Name</ToolTip>
+					<Default>MyCommand</Default>
+				</Literal>
+				<Literal>
+					<ID>className</ID>
+					<ToolTip>Type of command class (i.e. RelayCommand)</ToolTip>
+					<Default>RelayCommand</Default>
+				</Literal>
+				<Literal>
+					<ID>canExecute</ID>
+					<ToolTip>Value of CanExecute property</ToolTip>
+					<Default>true</Default>
+				</Literal>
+                <Literal>
+					<ID>functionExecute</ID>
+					<ToolTip>Function to execute</ToolTip>
+					<Default>MyFunction</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="csharp"><![CDATA[
+private RelayCommand m_$propertyName$;
+
+public RelayCommand $propertyName$
+{
+    get
+    {
+        if(m_$propertyName$ == null)
+            m_$propertyName$ = new RelayCommand(() => $functionExecute$(), () => $canExecute$);
+        return m_$propertyName$;
+    }
+}
+
+private void $functionExecute$()
+{
+}
+    ]]>
+			</Code>
+<Imports>
+    <Import>
+        <Namespace>GalaSoft.MvvmLight.CommandWpf</Namespace>
+    </Import>
+</Imports>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>

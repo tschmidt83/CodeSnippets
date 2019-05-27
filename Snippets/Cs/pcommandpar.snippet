@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>pcommandpar</Title>
+			<Shortcut>pcommandpar</Shortcut>
+			<Description>ICommand implementation with parameters</Description>
+			<Author>Torben Schmidt</Author>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>propertyName</ID>
+					<ToolTip>Property Name</ToolTip>
+					<Default>MyCommand</Default>
+				</Literal>
+				<Literal>
+					<ID>paramType</ID>
+					<ToolTip>Type of command class (i.e. RelayCommand)</ToolTip>
+					<Default>RelayCommand</Default>
+				</Literal>
+				<Literal>
+					<ID>canExecute</ID>
+					<ToolTip>Value of CanExecute property</ToolTip>
+					<Default>true</Default>
+				</Literal>
+                <Literal>
+					<ID>functionExecute</ID>
+					<ToolTip>Function to execute</ToolTip>
+					<Default>MyFunction</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="csharp"><![CDATA[
+private RelayCommand<$paramType$> m_$propertyName$;
+
+public RelayCommand<$paramType$> $propertyName$
+{
+    get
+    {
+        if(m_$propertyName$ == null)
+            m_$propertyName$ = new RelayCommand<$paramType$>((p) => $functionExecute$(p), (p) => $canExecute$);
+        return m_$propertyName$;
+    }
+}
+
+private void $functionExecute$($paramType$ p)
+{
+}
+    ]]>
+			</Code>
+<Imports>
+    <Import>
+        <Namespace>GalaSoft.MvvmLight.CommandWpf</Namespace>
+    </Import>
+</Imports>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>

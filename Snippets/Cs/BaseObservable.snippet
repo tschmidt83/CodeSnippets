@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>  
+<CodeSnippets  
+    xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">  
+    <CodeSnippet Format="1.0.0">  
+        <Header>  
+            <Title>BaseObservable class template</Title>
+			<Author>Torben Schmidt</Author>
+			<Description>Template for BaseObservable class which implements INotifyPropertyChanged.</Description>
+        </Header>  
+        <Snippet>  
+			<Declarations>
+				<Literal>
+					<ID>className</ID>
+					<ToolTip>Class Name</ToolTip>
+					<Default>BaseObservable</Default>
+				</Literal>			
+			</Declarations>
+            <Code Language="csharp">  
+                <![CDATA[
+public class $className$ : INotifyPropertyChanged
+{
+    public $className$()
+    {
+    }
+
+    #region INotifyPropertyChanged members
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    protected virtual void OnPropertyChanged(string prop)
+    {
+        if (PropertyChanged != null)
+        {
+            PropertyChanged(this, new PropertyChangedEventArgs(prop));
+        }
+    }
+    #endregion
+}
+                ]]>  
+            </Code> 
+            
+<Imports>
+    <Import>
+        <Namespace>System.ComponentModel</Namespace>
+    </Import>
+</Imports>
+
+        </Snippet>  
+    </CodeSnippet>  
+</CodeSnippets>  

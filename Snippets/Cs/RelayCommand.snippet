@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>  
+<CodeSnippets  
+    xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">  
+    <CodeSnippet Format="1.0.0">  
+        <Header>  
+            <Title>RelayCommand class template</Title>
+			<Author>Torben Schmidt</Author>
+			<Description>Template for RelayCommand class for use in MVVM environments.</Description>
+        </Header>  
+        <Snippet>  
+			<Declarations>
+				<Literal>
+					<ID>className</ID>
+					<ToolTip>Class Name</ToolTip>
+					<Default>RelayCommand</Default>
+				</Literal>			
+			</Declarations>
+            <Code Language="csharp">  
+                <![CDATA[
+public class $className$ : ICommand
+{
+    private Predicate<object> _canExecute;
+    private Action<object> _execute;
+
+    public $className$(Predicate<object> canExecute, Action<object> execute)
+    {
+        this._canExecute = canExecute;
+        this._execute = execute;
+    }
+
+    public event EventHandler CanExecuteChanged
+    {
+        add { CommandManager.RequerySuggested += value; }
+        remove { CommandManager.RequerySuggested -= value; }
+    }
+
+    public bool CanExecute(object parameter)
+    {
+        return _canExecute(parameter);
+    }
+
+    public void Execute(object parameter)
+    {
+        _execute(parameter);
+    }
+}
+                ]]>  
+            </Code>  
+<References>  
+    <Reference>  
+        <Assembly>PresentationCore.dll</Assembly>  
+    </Reference>  
+</References>  
+
+<Imports>
+    <Import>
+        <Namespace>System</Namespace>
+    </Import>
+    <Import>
+        <Namespace>System.Windows.Input</Namespace>
+    </Import>
+</Imports>
+        
+        </Snippet>  
+    </CodeSnippet>  
+</CodeSnippets>  
