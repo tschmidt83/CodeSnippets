@@ -1,0 +1,7 @@
+In XAML:
+Include namespace xmlns:models="clr-namespace:Models"
+
+<TextBlock models:TextFormatter.FormattedText="{x:Static lang:LocalizedStrings.strTest}"/>
+
+In LocalizedStrings.resx:
+m{Sub}St{/Sub} (O{Sub}2{/Sub}-bezogen)
