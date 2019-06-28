@@ -6,6 +6,9 @@
 
 #define MAX_LOADSTRING 100
 
+// Prototypes
+void SaveScreenshot(HWND hWnd);
+
 // Global Variables:
 HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
@@ -25,7 +28,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    // TODO: Place code here.
+    Backend_Initialize();
+    Simulation_Initialize();
 
     // Initialize global strings
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -42,6 +46,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     MSG msg;
 
+    // TODO: Place custom initialization code here.
+    Backend_DrawLine(0, 0, APP_SCREEN_WIDTH, APP_SCREEN_HEIGHT, 255, 0, 0);
+    Backend_DrawLine(0, APP_SCREEN_HEIGHT, APP_SCREEN_WIDTH, 0, 255, 0, 0);
+
     // Main message loop:
     while (GetMessage(&msg, nullptr, 0, 0))
     {
@@ -50,7 +58,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+
+        // Process simulation loop
+        Simulation_ProcessLoop();
     }
+
+    // Shutdown backend
+    Backend_Shutdown();
 
     return (int) msg.wParam;
 }
@@ -95,20 +109,54 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-   hInst = hInstance; // Store instance handle in our global variable
+  // Determine desktop resolution
+  HWND hDesktop = GetDesktopWindow();
+  RECT desktop;
+  GetWindowRect(hDesktop, &desktop);
+  int res_x = desktop.right;
+  int res_y = desktop.bottom;
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+  int left = CW_USEDEFAULT;
+  int top = CW_USEDEFAULT;
 
-   if (!hWnd)
-   {
-      return FALSE;
-   }
+  if (res_x > (APP_SCREEN_WIDTH + 20))
+  {
+    if (res_x > (APP_SCREEN_HEIGHT + 40))
+    {
+      left = (res_x - (APP_SCREEN_WIDTH + 20)) >> 1;
+      top = (res_y - (APP_SCREEN_HEIGHT + 40)) >> 1;
+    }
+  }
 
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
+  hInst = hInstance; // Store instance handle in our global variable
 
-   return TRUE;
+  HWND hWnd = CreateWindow(
+    TEXT(WINDOW_CLASSNAME),
+    TEXT(WINDOW_WINDOWNAME),
+    WS_OVERLAPPEDWINDOW,
+    left,
+    top,
+    APP_SCREEN_WIDTH + 20,
+    APP_SCREEN_HEIGHT + 40,
+    NULL,
+    NULL,
+    hInstance,
+    NULL
+  );
+
+  if (!hWnd)
+  {
+    return FALSE;
+  }
+
+  SetMenu(hWnd, NULL);
+  ShowWindow(hWnd, nCmdShow);
+  UpdateWindow(hWnd);
+
+  Backend_SetContext(hWnd);
+  Backend_Refresh();
+
+  return TRUE;
 }
 
 //
@@ -125,6 +173,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
+    case WM_KEYDOWN:
+    {
+      switch (wParam)
+      {
+        case VK_RETURN: SaveScreenshot(hWnd); break;
+        default:
+          break;
+      }
+      break;
+    }
+    case WM_CREATE:
+    {
+      // Timer 1: Display refresh timer
+      SetTimer(hWnd, 1, 100, NULL);
+
+      // Timer 2: Application timer
+      SetTimer(hWnd, 2, 1000, NULL);
+    }
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
@@ -146,13 +212,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: Add any drawing code that uses hdc here...
             EndPaint(hWnd, &ps);
         }
         break;
     case WM_DESTROY:
+        KillTimer(hWnd, 1);
+        KillTimer(hWnd, 2);
         PostQuitMessage(0);
         break;
+    case WM_TIMER:
+    {
+      switch (wParam)
+      {
+        case 1:
+        {
+          // Window refresh timer
+          Backend_Refresh();
+        }
+        case 2:
+        {
+          // Application timer
+          Simulation_ProcessTimer();
+        }
+        default: break;
+      }
+      break;
+    }
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
@@ -177,4 +262,28 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     }
     return (INT_PTR)FALSE;
+}
+
+void SaveScreenshot(HWND hWnd)
+{
+  OPENFILENAME ofn;
+  char szFileName[128] = "";
+  ZeroMemory(&ofn, sizeof(ofn));
+
+  ofn.lStructSize = sizeof(ofn);
+  ofn.hwndOwner = hWnd;
+  ofn.lpstrFilter = L"PNG-Datei (*.png)\0*.png\0\0";
+  ofn.lpstrFile = (LPWSTR)szFileName;
+  ofn.nMaxFile = 128;
+  ofn.Flags = OFN_OVERWRITEPROMPT | OFN_NONETWORKBUTTON;
+  ofn.lpstrDefExt = L"png";
+
+  if (GetSaveFileName(&ofn))
+  {
+    // Take screenshot, save file
+    if (Backend_Capture(hWnd, ofn.lpstrFile))
+      MessageBox(hWnd, L"Erfolgreich exportiert.", L"Screenshot", 0);
+    else
+      MessageBox(hWnd, L"Fehler beim Export.", L"Screenshot", 0);
+  }
 }
