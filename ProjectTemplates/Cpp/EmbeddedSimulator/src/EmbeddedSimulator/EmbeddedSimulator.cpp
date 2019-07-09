@@ -3,16 +3,23 @@
 
 #include "stdafx.h"
 #include "EmbeddedSimulator.h"
+#include <chrono>
+#include <future>
+#include <thread>
 
 #define MAX_LOADSTRING 100
 
 // Prototypes
 void SaveScreenshot(HWND hWnd);
+void ProcessBackground(void);
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
+
+char TimerRunning = 0x00;
+char TimerProcessing = 0x00;
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -50,6 +57,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     Backend_DrawLine(0, 0, APP_SCREEN_WIDTH, APP_SCREEN_HEIGHT, 255, 0, 0);
     Backend_DrawLine(0, APP_SCREEN_HEIGHT, APP_SCREEN_WIDTH, 0, 255, 0, 0);
 
+    TimerRunning = 0x01;
+    std::thread t(ProcessBackground);
+
     // Main message loop:
     while (GetMessage(&msg, nullptr, 0, 0))
     {
@@ -59,9 +69,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             DispatchMessage(&msg);
         }
 
-        // Process simulation loop
-        Simulation_ProcessLoop();
+        // Process simulation loop. However, check if processing runs on parallel thread to prevent race conditions.
+        if (TimerProcessing == 0x00)
+          Simulation_ProcessLoop();
     }
+
+    // Wait for thread to finish
+    t.join();
 
     // Shutdown backend
     Backend_Shutdown();
@@ -187,9 +201,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
       // Timer 1: Display refresh timer
       SetTimer(hWnd, 1, 100, NULL);
-
-      // Timer 2: Application timer
-      SetTimer(hWnd, 2, 1000, NULL);
     }
     case WM_COMMAND:
         {
@@ -216,8 +227,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_DESTROY:
+        TimerRunning = 0x00;
         KillTimer(hWnd, 1);
-        KillTimer(hWnd, 2);
         PostQuitMessage(0);
         break;
     case WM_TIMER:
@@ -228,11 +239,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
           // Window refresh timer
           Backend_Refresh();
-        }
-        case 2:
-        {
-          // Application timer
-          Simulation_ProcessTimer();
         }
         default: break;
       }
@@ -285,5 +291,16 @@ void SaveScreenshot(HWND hWnd)
       MessageBox(hWnd, L"Erfolgreich exportiert.", L"Screenshot", 0);
     else
       MessageBox(hWnd, L"Fehler beim Export.", L"Screenshot", 0);
+  }
+}
+
+void ProcessBackground()
+{
+  while (TimerRunning)
+  {
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    TimerProcessing = 0x01;
+    Simulation_ProcessTimer();
+    TimerProcessing = 0x00;
   }
 }

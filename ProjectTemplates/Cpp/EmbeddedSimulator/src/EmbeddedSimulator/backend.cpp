@@ -34,7 +34,7 @@ void Backend_SetContext(HWND hWnd)
 {
   dcWin = GetDC(hWnd);
   dcMem = CreateCompatibleDC(dcWin);
-  bMem = (HBITMAP)SelectObject(dcMem, CreateCompatibleBitmap(dcWin, 320, 240));
+  bMem = (HBITMAP)SelectObject(dcMem, CreateCompatibleBitmap(dcWin, APP_SCREEN_WIDTH, APP_SCREEN_HEIGHT));
   IsInitialized = TRUE;
 }
 
@@ -49,7 +49,7 @@ void Backend_Refresh()
 {
   if (IsInitialized)
   {
-    BOOL res = BitBlt(dcWin, 0, 0, 320, 240, dcMem, 0, 0, SRCCOPY);
+    BOOL res = BitBlt(dcWin, 0, 0, APP_SCREEN_WIDTH, APP_SCREEN_HEIGHT, dcMem, 0, 0, SRCCOPY);
     if (res == FALSE)
     {
       DWORD err = GetLastError();
@@ -65,9 +65,9 @@ BOOL Backend_Capture(HWND hWnd, LPWSTR name)
   if (IsInitialized)
   {
     HDC dcEx = CreateCompatibleDC(dcWin);
-    HBITMAP bEx = CreateCompatibleBitmap(dcWin, 320, 240);
+    HBITMAP bEx = CreateCompatibleBitmap(dcWin, APP_SCREEN_WIDTH, APP_SCREEN_HEIGHT);
     SelectObject(dcEx, bEx);
-    BOOL res = BitBlt(dcEx, 0, 0, 320, 240, dcWin, 0, 0, SRCCOPY);
+    BOOL res = BitBlt(dcEx, 0, 0, APP_SCREEN_WIDTH, APP_SCREEN_HEIGHT, dcWin, 0, 0, SRCCOPY);
 
     CLSID   encoderClsid;
     GetEncoderClsid(L"image/png", &encoderClsid);
