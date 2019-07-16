@@ -30,8 +30,7 @@
 					<Default>MyFunction</Default>
 				</Literal>
 			</Declarations>
-			<Code Language="csharp"><![CDATA[
-private RelayCommand<$paramType$> m_$propertyName$;
+			<Code Language="csharp"><![CDATA[private RelayCommand<$paramType$> m_$propertyName$;
 
 public RelayCommand<$paramType$> $propertyName$
 {
@@ -41,12 +40,7 @@ public RelayCommand<$paramType$> $propertyName$
             m_$propertyName$ = new RelayCommand<$paramType$>((p) => $functionExecute$(p), (p) => $canExecute$);
         return m_$propertyName$;
     }
-}
-
-private void $functionExecute$($paramType$ p)
-{
-}
-    ]]>
+}]]>
 			</Code>
 <Imports>
     <Import>
